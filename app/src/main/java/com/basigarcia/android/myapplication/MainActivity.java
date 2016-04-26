@@ -16,41 +16,52 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    //UI elements
+    ////STEP 2-------------   UI elements
     TextView mDateTimeTextView;
     ArrayList<String> mList;
     ArrayAdapter<String> mAdapter;
 
-    //Codes we will use later to identify what we are doing
+    ////STEP 3------------- Codes we will use later to identify what we are doing
     private final int ADD_TASK_REQUEST = 1;
 
-    //Logic elements
+    //STEP 16-------------
+    private final String PREFS_TASKS = "prefs_tasks";
+    private final String KEY_TASKS_LIST = "list";
+
+    //STEP 13-------------    Logic elements
     private BroadcastReceiver mTickReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        //1
+        //Explain
         super.onCreate(savedInstanceState);
 
-        //2
+        //Explain
         setContentView(R.layout.activity_main);
 
-        // 4
+        //STEP 2------------
         mDateTimeTextView = (TextView) findViewById(R.id.dateTimeTextView);
         final Button addTaskBtn = (Button) findViewById(R.id.addTaskBtn);
         final ListView listview = (ListView) findViewById(R.id.taskListview);
         mList = new ArrayList<String>();
 
-        // 5
+        ////STEP 18------------- Get shared preferences saved tasks
+        String savedList = getSharedPreferences(PREFS_TASKS, MODE_PRIVATE).getString(KEY_TASKS_LIST, null);
+        if (savedList != null) {
+            String[] items = savedList.split(",");
+            mList = new ArrayList<String>(Arrays.asList(items));
+        }
+        //STEP 2------------- Set the adapter for the listview
         mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mList);
         listview.setAdapter(mAdapter);
 
-        // 6
+        //STEP 2------------- set Onclick listener for items on the list, we won't cover this in the tutorial
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -58,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        ////STEP 14------------- Set the broadcast receiver
         mTickReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -69,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    //Listener for the button defined in the activity xml
+    ////STEP 4------------- Listener for the button defined in the activity xml
     public void addTaskClicked(View view){
         Intent intent = new Intent(MainActivity.this, TaskDescriptionActivity.class);
 
@@ -80,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    //Create in STEP 5, Implement in STEP 11 -------------
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // 1 - Check which request you're responding to. We used ADD_TASK_REQUEST
@@ -95,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //STEP 12-------------
     private static String getCurrentTimeStamp() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");//dd/MM/yyyy
         Date now = new Date();
@@ -102,9 +117,11 @@ public class MainActivity extends AppCompatActivity {
         return strDate;
     }
 
+
+    //STEP 15-------------
     @Override
     protected void onResume() {
-        // 1
+        // Explain
         super.onResume();
         // 2 Update to current value
         mDateTimeTextView.setText(getCurrentTimeStamp());
@@ -112,11 +129,13 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(mTickReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
     }
 
+
+    //STEP 15-------------
     @Override
     protected void onPause() {
-        // 4
+        // Explain
         super.onPause();
-        // 5
+        // If we have a receiver initialized
         if (mTickReceiver != null) {
             try {
                 //We don't need to be listening for events when the app is not in this activity
@@ -126,6 +145,21 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("MAINACTIVITY", "Timetick Receiver not registered", e);
             }
         }
+    }
+
+    //STEP 17-------------
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Save all data which you want to persist.
+        StringBuilder savedList = new StringBuilder();
+        for (String s : mList) {
+            savedList.append(s);
+            savedList.append(",");
+        }
+        getSharedPreferences(PREFS_TASKS, MODE_PRIVATE).edit()
+                .putString(KEY_TASKS_LIST, savedList.toString()).commit();
     }
 
 

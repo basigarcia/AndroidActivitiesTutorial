@@ -11,6 +11,7 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+//STEP 6-------------
 public class TaskDescriptionActivity extends AppCompatActivity {
 
     public static final String EXTRA_TASK_DESCRIPTION = "task";
@@ -23,6 +24,7 @@ public class TaskDescriptionActivity extends AppCompatActivity {
      */
     private GoogleApiClient client;
 
+    //STEP 8-------------
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,8 +36,9 @@ public class TaskDescriptionActivity extends AppCompatActivity {
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
+    //STEP 8 & 9-------------
     public void doneClicked(View view) {
-        // 1
+        // Get the text from the textview
         String taskDescription = mDescriptionView.getText().toString();
 
         if (!taskDescription.isEmpty()) {
@@ -44,10 +47,10 @@ public class TaskDescriptionActivity extends AppCompatActivity {
             result.putExtra(EXTRA_TASK_DESCRIPTION, taskDescription);
             setResult(RESULT_OK, result);
         } else {
-            // 3
+            // Indicate we had no task
             setResult(RESULT_CANCELED);
         }
-        // 4
+        // Close the activity, calls onDestroy and returns result to parent activity
         finish();
     }
 
